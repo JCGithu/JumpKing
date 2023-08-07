@@ -1710,8 +1710,4 @@ async function setupLevels() {
       chatLevels[i].isIceLevel = true;
     }
   }
-  // console.log(levels[1]);
-  // levels[1].levelImage = levelImages[1];
-  // levels[2].levelImage = levelImages[1];
-  // levels[3].levelImage = levelImages[3];
 }
