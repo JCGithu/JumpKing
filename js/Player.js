@@ -608,108 +608,106 @@ class Player {
 
     chosenLine = collidedLines[0];
     if (collidedLines.length < 1) return chosenLine;
-      for (let l of collidedLines) {
-        let directedCorrection = createVector(0, 0)
-        let correction = 10000;
-        if (l.isHorizontal) {
-          if (this.IsMovingDown()) {
-            directedCorrection.y = l.y1 - (this.currentPos.y + this.height)
-            correction = abs(directedCorrection)
-            correction = abs(this.currentPos.y - (l.y1 - this.height))
-          } else {
-            // if moving up then we've hit a roof and we bounce off
-            directedCorrection.y = l.y1 - this.currentPos.y;
-            correction = abs(this.currentPos.y - l.y1);
+    for (let l of collidedLines) {
+      let directedCorrection = createVector(0, 0)
+      let correction = 10000;
+      if (l.isHorizontal) {
+        if (this.IsMovingDown()) {
+          directedCorrection.y = l.y1 - (this.currentPos.y + this.height)
+          correction = abs(directedCorrection)
+          correction = abs(this.currentPos.y - (l.y1 - this.height))
+        } else {
+          // if moving up then we've hit a roof and we bounce off
+          directedCorrection.y = l.y1 - this.currentPos.y;
+          correction = abs(this.currentPos.y - l.y1);
+        }
+      } else if (l.isVertical) {
+        if (this.IsMovingRight()) {
+          directedCorrection.x = l.x1 - (this.currentPos.x + this.width);
+          correction = abs(this.currentPos.x - (l.x1 - this.width));
+        } else {
+          directedCorrection.x = l.x1 - this.currentPos.x;
+          correction = abs(this.currentPos.x - l.x1);
+        }
+      } else {
+        //this bitch diagonal
+        // so we're moving the point to the diagonal linees
+        // if we get the midpoint of the 2 intersection points then we gucci
+        // if there is only 1 intersection point then just treat it as a wall/ roof
+        if (l.diagonalCollisionInfo.collisionPoints.length === 2) {
+          let midpoint = l.diagonalCollisionInfo.collisionPoints[0].copy();
+          midpoint.add(l.diagonalCollisionInfo.collisionPoints[1].copy());
+          midpoint.mult(0.5);
+
+          let left = l.diagonalCollisionInfo.leftSideOfPlayerCollided;
+          let right = l.diagonalCollisionInfo.rightSideOfPlayerCollided;
+          let top = l.diagonalCollisionInfo.topSideOfPlayerCollided;
+          let bottom = l.diagonalCollisionInfo.bottomSideOfPlayerCollided;
+
+          let playerCornerPos = null;
+          if (top && left) {
+            playerCornerPos = this.currentPos.copy();
           }
-        } else if (l.isVertical) {
-                  if (this.IsMovingRight()) {
-                      directedCorrection.x = l.x1 - (this.currentPos.x + this.width);
-                      correction = abs(this.currentPos.x - (l.x1 - this.width));
-                  } else {
-                      directedCorrection.x = l.x1 - this.currentPos.x;
-
-                      correction = abs(this.currentPos.x - l.x1);
-                  }
-              } else {
-                  //this bitch diagonal
-                  // so we're moving the point to the diagonal linees
-                  // if we get the midpoint of the 2 intersection points then we gucci
-                  // if there is only 1 intersection point then just treat it as a wall/ roof
-                  if (l.diagonalCollisionInfo.collisionPoints.length === 2) {
-                      let midpoint = l.diagonalCollisionInfo.collisionPoints[0].copy();
-                      midpoint.add(l.diagonalCollisionInfo.collisionPoints[1].copy());
-                      midpoint.mult(0.5);
-
-                      let left = l.diagonalCollisionInfo.leftSideOfPlayerCollided;
-                      let right = l.diagonalCollisionInfo.rightSideOfPlayerCollided;
-                      let top = l.diagonalCollisionInfo.topSideOfPlayerCollided;
-                      let bottom = l.diagonalCollisionInfo.bottomSideOfPlayerCollided;
-
-                      let playerCornerPos = null;
-                      if (top && left) {
-                          playerCornerPos = this.currentPos.copy();
-
-                      }
-                      if (top && right) {
-                          playerCornerPos = this.currentPos.copy();
-                          playerCornerPos.x += this.width;
-                      }
-                      if (bottom && left) {
-                        playerCornerPos = this.currentPos.copy();
-                        playerCornerPos.y += this.height;
-                      }
-                      if (bottom && right) {
-                        playerCornerPos = this.currentPos.copy();
-                        playerCornerPos.y += this.height;
-                        playerCornerPos.x += this.width;
-                      }
-
-                      if (playerCornerPos === null) {
-                        playerCornerPos = this.currentPos.copy();
-                        if (this.IsMovingDown()) playerCornerPos.y += this.height;
-                        if (this.IsMovingRight()) playerCornerPos.x += this.width;
-                      }
-                      directedCorrection.x = midpoint.x - playerCornerPos.x;
-                      directedCorrection.y = midpoint.y - playerCornerPos.y;
-                      correction = dist(playerCornerPos.x, playerCornerPos.y, midpoint.x, midpoint.y)
-                  } else {
-                    let left = l.diagonalCollisionInfo.leftSideOfPlayerCollided;
-                    let right = l.diagonalCollisionInfo.rightSideOfPlayerCollided;
-                    let top = l.diagonalCollisionInfo.topSideOfPlayerCollided;
-                    let bottom = l.diagonalCollisionInfo.bottomSideOfPlayerCollided;
-
-                    let playerCornerPos = null;
-                    if (top) {// bounce off the point as if it were horizontal
-                      let closestPointY = max(l.y1, l.y2)
-                      directedCorrection.y = closestPointY - (this.currentPos.y)
-                      correction = abs(this.currentPos.y - closestPointY);
-                    }
-                    if (bottom) {//treat like floor
-                      let closestPointY = min(l.y1, l.y2)
-                      directedCorrection.y = closestPointY - (this.currentPos.y + this.height)
-                      correction = abs((this.currentPos.y + this.height) - closestPointY);
-                    }
-                    if (left) {// treat like a left wall
-                      let closestPointX = max(l.x1, l.x2)
-                      directedCorrection.x = closestPointX - this.currentPos.x;
-                      correction = abs(this.currentPos.x - closestPointX);
-                    }
-                    if (right) {// treat like a left wall
-                      let closestPointX = min(l.x1, l.x2)
-                      directedCorrection.x = closestPointX - (this.currentPos.x + this.width);
-                      correction = abs((this.currentPos.x + this.width) - closestPointX);
-                    }
-                  }
-              }
-              if (isBetween(directedCorrection.x, 0, maxAllowedXCorrection) &&
-                  isBetween(directedCorrection.y, 0, maxAllowedYCorrection)) {
-                  // correction = abs(directedCorrection)
-                  if (correction < minCorrection) {
-                    minCorrection = correction;
-                    chosenLine = l;
-                  }
-              }
+          if (top && right) {
+            playerCornerPos = this.currentPos.copy();
+            playerCornerPos.x += this.width;
           }
+          if (bottom && left) {
+            playerCornerPos = this.currentPos.copy();
+            playerCornerPos.y += this.height;
+          }
+          if (bottom && right) {
+            playerCornerPos = this.currentPos.copy();
+            playerCornerPos.y += this.height;
+            playerCornerPos.x += this.width;
+          }
+
+          if (playerCornerPos === null) {
+            playerCornerPos = this.currentPos.copy();
+            if (this.IsMovingDown()) playerCornerPos.y += this.height;
+            if (this.IsMovingRight()) playerCornerPos.x += this.width;
+          }
+          directedCorrection.x = midpoint.x - playerCornerPos.x;
+          directedCorrection.y = midpoint.y - playerCornerPos.y;
+          correction = dist(playerCornerPos.x, playerCornerPos.y, midpoint.x, midpoint.y)
+        } else {
+          let left = l.diagonalCollisionInfo.leftSideOfPlayerCollided;
+          let right = l.diagonalCollisionInfo.rightSideOfPlayerCollided;
+          let top = l.diagonalCollisionInfo.topSideOfPlayerCollided;
+          let bottom = l.diagonalCollisionInfo.bottomSideOfPlayerCollided;
+
+          let playerCornerPos = null;
+          if (top) {// bounce off the point as if it were horizontal
+            let closestPointY = max(l.y1, l.y2)
+            directedCorrection.y = closestPointY - (this.currentPos.y)
+            correction = abs(this.currentPos.y - closestPointY);
+          }
+          if (bottom) {//treat like floor
+            let closestPointY = min(l.y1, l.y2)
+            directedCorrection.y = closestPointY - (this.currentPos.y + this.height)
+            correction = abs((this.currentPos.y + this.height) - closestPointY);
+          }
+          if (left) {// treat like a left wall
+            let closestPointX = max(l.x1, l.x2)
+            directedCorrection.x = closestPointX - this.currentPos.x;
+            correction = abs(this.currentPos.x - closestPointX);
+          }
+          if (right) {// treat like a left wall
+            let closestPointX = min(l.x1, l.x2)
+            directedCorrection.x = closestPointX - (this.currentPos.x + this.width);
+            correction = abs((this.currentPos.x + this.width) - closestPointX);
+          }
+        }
+      }
+      if (isBetween(directedCorrection.x, 0, maxAllowedXCorrection) &&
+          isBetween(directedCorrection.y, 0, maxAllowedYCorrection)) {
+          // correction = abs(directedCorrection)
+          if (correction < minCorrection) {
+            minCorrection = correction;
+            chosenLine = l;
+          }
+      }
+    }
     return chosenLine;
   }
 
@@ -788,7 +786,6 @@ class Player {
       }
     }
   }
-
 
   StartCurrentAction() {
     this.aiActionMaxTime = floor(this.currentAction.holdTime * 30);
