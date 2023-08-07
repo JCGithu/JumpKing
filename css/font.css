@@ -1,0 +1,18 @@
+@font-face {
+    font-family: 'LitterLover2';
+    src: url('LitterLover2-Bold.woff2') format('woff2'),
+        url('LitterLover2-Bold.woff') format('woff');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'LitterLover2';
+    src: url('LitterLover2.woff2') format('woff2'),
+        url('LitterLover2.woff') format('woff');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
