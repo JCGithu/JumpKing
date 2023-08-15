@@ -1,5 +1,9 @@
 let width = 2400;
 let height = 900;
+let rescale = 300;
+let scale = (window.innerWidth > width) ? 1 : (window.innerWidth - rescale) / width;
+
+
 let canvas,player,chatPlayer, backgroundImage;
 let lines = [];
 let levelImages = [];
@@ -97,6 +101,14 @@ function preload() {
   landSound = loadSound('sounds/land.mp3');
 }
 
+function resizeP5Canvas(){
+  let canvasTarget = document.getElementById('defaultCanvas0');
+  scale = (window.innerWidth > width) ? 1 : (window.innerWidth - rescale) / width;
+  if (canvasTarget.style) {
+    canvasTarget.style.height = `${height * scale}px`;
+    canvasTarget.style.width = `${width * scale}px`;
+  }
+}
 
 function setup() {
   canvas = createCanvas(width, height);
@@ -108,6 +120,7 @@ function setup() {
   setupLevels();
   chatBuffer = createGraphics(width / 2, height);
   playerBuffer = createGraphics(width / 2, height);
+  resizeP5Canvas();
 }
 
 let levelNumber = 0;
