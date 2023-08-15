@@ -1,7 +1,7 @@
 let width = 2400;
 let height = 900;
 let rescale = 300;
-let scale = (window.innerWidth > width) ? 1 : (window.innerWidth - rescale) / width;
+let scaleAmount = (window.innerWidth > width) ? 1 : (window.innerWidth - rescale) / width;
 
 
 let canvas,player,chatPlayer, backgroundImage;
@@ -103,10 +103,10 @@ function preload() {
 
 function resizeP5Canvas(){
   let canvasTarget = document.getElementById('defaultCanvas0');
-  scale = (window.innerWidth > width) ? 1 : (window.innerWidth - rescale) / width;
+  scaleAmount = (window.innerWidth > width) ? 1 : (window.innerWidth - rescale) / width;
   if (canvasTarget.style) {
-    canvasTarget.style.height = `${height * scale}px`;
-    canvasTarget.style.width = `${width * scale}px`;
+    canvasTarget.style.height = `${height * scaleAmount}px`;
+    canvasTarget.style.width = `${width * scaleAmount}px`;
   }
 }
 
